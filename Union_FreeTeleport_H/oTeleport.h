@@ -35,6 +35,23 @@ namespace GOTHIC_ENGINE {
 		zSTRING menuName;
 		int test;
 
+		zSTRING sSaved;
+		zSTRING sTpName;
+		zSTRING sMenu01;
+		zSTRING sMenu01_01;
+		zSTRING sMenu01_02;
+		zSTRING sMenu01_03;
+		zSTRING sMenu01_04;
+		zSTRING sMenu02;
+		zSTRING sMenu03;
+		zSTRING sMenu04;
+		zSTRING sMenu05;
+		zSTRING sSlotIsEmpty;
+		zSTRING sSaveCleaned;
+		zSTRING sExit;
+		zSTRING sDefSlotName;
+		zSTRING sTeleportTo;
+
 	public:
 		void Loop();
 		void Save();

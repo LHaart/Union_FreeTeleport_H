@@ -57,6 +57,25 @@ namespace GOTHIC_ENGINE {
 		allKeys.Insert( KEY_TAB ); allCharacters.Insert( "" );
 		allKeys.Insert( KEY_SLASH ); allCharacters.Insert( "/" );
 		allKeys.Insert( KEY_PERIOD ); allCharacters.Insert( "." );
+
+		sSaved = zoptions->ReadString( "FREETELEPORTS", "sSaved", "saved." );
+		sTpName = zoptions->ReadString( "FREETELEPORTS", "sTeleportName", "Teleport name:" );
+		sMenu01 = zoptions->ReadString( "FREETELEPORTS", "sMenu01", "Main menu" );
+		sMenu01_01 = zoptions->ReadString( "FREETELEPORTS", "sMenu01_01", "1. Teleport to..." );
+		sMenu01_02 = zoptions->ReadString( "FREETELEPORTS", "sMenu01_02", "2. Teleport to another location..." );
+		sMenu01_03 = zoptions->ReadString( "FREETELEPORTS", "sMenu01_03", "3. Save current position." );
+		sMenu01_04 = zoptions->ReadString( "FREETELEPORTS", "sMenu01_04", "0. Clear all savepoints." );
+		sMenu02 = zoptions->ReadString( "FREETELEPORTS", "sMenu02", "Teleport to..." );
+		sMenu03 = zoptions->ReadString( "FREETELEPORTS", "sMenu03", "Choise next world..." );
+		sMenu04 = zoptions->ReadString( "FREETELEPORTS", "sMenu04", "Save" );
+		sMenu05 = zoptions->ReadString( "FREETELEPORTS", "sMenu05", "Save name menu" );
+		sSlotIsEmpty = zoptions->ReadString( "FREETELEPORTS", "sSlotIsEmpty", "The selected slot is empty." );
+		sSaveCleaned = zoptions->ReadString( "FREETELEPORTS", "sSaveCleaned", "Savepoints are cleaned" );
+		sExit = zoptions->ReadString( "FREETELEPORTS", "sExit", "Esc. Exit." );
+		sDefSlotName = zoptions->ReadString( "FREETELEPORTS", "sDefSlotName", "EmptySlot" );
+		sTeleportTo = zoptions->ReadString("FREETELEPORTS", "sTeleportTo", "Teleport to" );
+
+		
 	}
 
 	void oTeleport::HandleEvent() {
@@ -105,7 +124,7 @@ namespace GOTHIC_ENGINE {
 					menuNum = MAIN_MENU;
 					teleportName.Clear();
 					Draw();
-					printWin( slot.tpName + " saved." );
+					printWin( slot.tpName + " " + sSaved );
 					slot.pos = player->GetPositionWorld();
 					slot.atPos = player->trafoObjToWorld.GetAtVector();
 				}
@@ -277,7 +296,7 @@ namespace GOTHIC_ENGINE {
 			screen->InsertItem( pViewName );
 			pViewName->SetFont( "FONT_OLD_10_WHITE.TGA" );
 			pViewName->ClrPrintwin();
-			zSTRING name = "Teleport name:";
+			zSTRING name = sTpName;
 			int x = 8192 / 2 - pViewName->FontSize( name ) / 2;
 			int y = 0;
 			pViewName->Print( x, y, name );
@@ -316,11 +335,11 @@ namespace GOTHIC_ENGINE {
 		int margin = F( 8 );
 		int count = 0;
 		if ( menuNum == MAIN_MENU ) {
-			menuName = "Main menu";
-			pView->Print( x, y + count++ * margin, "1. Teleport to..." ); //1. Teleport to: 5 mana
-			pView->Print( x, y + count++ * margin, "2. Teleport to another location..." ); //2. Teleport to another location: 10 mana
-			pView->Print( x, y + count++ * margin, "3. Save current position." );
-			pView->Print( x, y + count++ * margin, "0. Clear all savepoints." ); 
+			menuName = sMenu01;
+			pView->Print( x, y + count++ * margin, sMenu01_01 ); //1. Teleport to: 5 mana
+			pView->Print( x, y + count++ * margin, sMenu01_02 ); //2. Teleport to another location: 10 mana
+			pView->Print( x, y + count++ * margin, sMenu01_03 );
+			pView->Print( x, y + count++ * margin, sMenu01_04 );
 
 			screen->RemoveItem( pViewName );
 			pViewName->ClrPrintwin();
@@ -343,7 +362,7 @@ namespace GOTHIC_ENGINE {
 				pView->Print( x, y + count++ * margin, A( i + 1 ) + ". " + A slot.tpName );
 			}
 		}
-		pView->Print( x, y + count++ * margin, "Esc. Exit." );
+		pView->Print( x, y + count++ * margin, sExit );
 
 		x = 8192 / 2 - pView->FontSize(menuName) / 2;
 		y = F( 5 );
@@ -373,7 +392,7 @@ namespace GOTHIC_ENGINE {
 					}
 				}
 				slot.num = i + 1;
-				slot.tpName = "EmptySlot " + zSTRING( slot.num ) ;
+				slot.tpName = sDefSlotName + " " + zSTRING( slot.num ) ;
 				arr.Insert(slot);
 				allTeleports.Insert(slot);
 			}
@@ -393,49 +412,52 @@ namespace GOTHIC_ENGINE {
 
 	void oTeleport::Choise( int num ) {
 		if ( menuNum == MAIN_MENU ) {
-			menuName = "Main menu";
+			menuName = sMenu01;
 			if ( num == 1 ) {
 				menuNum = TELEPORT_TO;
-				menuName = "Teleport to...";
+				menuName = sMenu02;
 				Draw();
 			} else if ( num == 2 ) {
 				menuNum = TELEPORT_NEXT_LOCATION_CHOISE_WORLD;
-				menuName = "Choise next world...";
+				menuName = sMenu03;
 				Draw();
 			} else if ( num == 3 ) {
 				menuNum = SAVE;
-				menuName = "Save";
+				menuName = sMenu04;
 				Draw();
 			} else if ( num == 0 ) {
 				allTeleports.DeleteList();
 				currentWorld.DeleteList();
 				Draw();
-				printWin("Savepoints are cleaned");
+				printWin( sSaveCleaned );
 			}
 		} else if ( menuNum == TELEPORT_TO ) {
 			menuNum = MAIN_MENU;
-			menuName = "Main menu";
+			menuName = sMenu01;
 			Toggle();
 			TeleportTo(num);
 		} else if ( menuNum == TELEPORT_NEXT_LOCATION_CHOISE_WORLD ) {
 			nextLocTo = GetWorldTpTo( num );
 			if ( !nextLocTo.IsEmpty() ) {
 				menuNum = TELEPORT_NEXT_LOCATION_TO;
-				menuName = "Teleport to...";
+				menuName = sMenu02;
 				Draw();
 			} else {
-				printWin("The selected slot is empty.");
+				printWin( sSlotIsEmpty );
 			}
 			
 		} else if ( menuNum == TELEPORT_NEXT_LOCATION_TO ) {
 			menuNum = MAIN_MENU;
-			menuName = "Main menu";
+			menuName = sMenu01;
 			Toggle();
 			TeleportToLoc(num);
 		} else if ( menuNum == SAVE ) {
+			if ( num > 3 ) {
+				return;
+			}
 			saveNum = num;
 			menuNum = SAVE_NAME;
-			menuName = "Save name menu";
+			menuName = sMenu05;
 			Draw();
 		}
 	}
@@ -449,7 +471,7 @@ namespace GOTHIC_ENGINE {
 
 				if ( pos.n[ 0 ] == 0 && pos.n[ 1 ] == 0 && pos.n[ 2 ] == 0 ) {
 
-					printWin( "The selected slot is empty." );
+					printWin( sSlotIsEmpty );
 					return;
 				}
 				ogame->ChangeLevel( slot.worldFilename, "" );
@@ -465,11 +487,11 @@ namespace GOTHIC_ENGINE {
 			
 			zVEC3 pos = slot.pos;
 
-			if ( pos.n[0] == 0 && pos.n[ 1 ] == 0 && pos.n[ 0 ] == 0 ) {
+			if ( pos.n[0] == 0 && pos.n[ 1 ] == 0 && pos.n[ 2 ] == 0 ) {
 				return;
 			}
 
-			player->SetCollDet( FALSE );
+			player->SetCollDet( FALSE ); 
 			
 			player->SetPositionWorld( slot.pos );
 			player->SetHeadingAtWorld( slot.atPos );
@@ -478,7 +500,7 @@ namespace GOTHIC_ENGINE {
 			player->Enable( player->GetPositionWorld() );
 
 			
-			printWin( "Teleport to " + slot.tpName );
+			printWin( sTeleportTo + " " + slot.tpName );
 			
 			ogame->GetSpawnManager()->SpawnImmediately();
 
