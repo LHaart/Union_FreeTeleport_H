@@ -4,6 +4,11 @@
 namespace GOTHIC_ENGINE {
 	// Add your code here . . .
 
+	oTeleport::~oTeleport() {
+		if ( pViewName ) { screen->RemoveItem( pViewName ); delete pViewName;	pViewName = NULL; };
+		if ( pView ) { screen->RemoveItem( pView );	delete pView;		pView = NULL; };
+	}
+
 	void oTeleport::Init() {
 		pView = zNEW(zCView)(0,0,F(70),F(50));
 		pView->SetPos( F(15), F(50));
@@ -82,7 +87,7 @@ namespace GOTHIC_ENGINE {
 		if ( menuNum != SAVE_NAME
 			&& !ogame->singleStep
 			&& !ogame->game_testmode ) {
-			if ( KeyClick( KEY_P ) ) {
+			if ( zKeyToggled( KEY_P ) ) {
 				INP_CLR;
 				Toggle();
 			}
@@ -92,9 +97,9 @@ namespace GOTHIC_ENGINE {
 
 			if ( menuNum == SAVE_NAME ) {
 				for ( int i = 0; i < allKeys.GetNum(); i++ ) {
-					if ( KeyPress( allKeys.GetSafe( i ) ) ) {
+					if ( zKeyPressed( allKeys.GetSafe( i ) ) ) {
 						
-						if ( KeyPress( KEY_LSHIFT ) || KeyPress( KEY_LSHIFT ) ) {
+						if ( zKeyPressed( KEY_LSHIFT ) || zKeyPressed( KEY_LSHIFT ) ) {
 							zSTRING str = zSTRING( allCharacters.GetSafe( i ) );
 							str.Upper();
 							teleportName = teleportName + str;
@@ -107,14 +112,14 @@ namespace GOTHIC_ENGINE {
 					}
 				}
 
-				if ( KeyClick( KEY_BACKSPACE ) ) {
+				if ( zKeyToggled( KEY_BACKSPACE ) ) {
 					INP_CLR;
 					if ( teleportName.Length() > 0 ) {
 						teleportName = teleportName.Cut( teleportName.Length() - 1, teleportName.Length() );
 					}
 				}
 
-				if ( KeyPress( KEY_RETURN ) ) {
+				if ( zKeyPressed( KEY_RETURN ) ) {
 					INP_CLR;
 					oTeleportSlot& slot = GetCurrent( saveNum );
 					if ( !teleportName.IsEmpty() ) {
@@ -130,7 +135,7 @@ namespace GOTHIC_ENGINE {
 				}
 			}
 
-			if ( KeyPress( KEY_ESCAPE ) || KeyPress( KEY_BACKSPACE ) ) {
+			if ( zKeyPressed( KEY_ESCAPE ) || zKeyPressed( KEY_BACKSPACE ) ) {
 				INP_CLR;
 				if ( menuNum == MAIN_MENU ) {
 					Toggle();
@@ -154,7 +159,7 @@ namespace GOTHIC_ENGINE {
 					i == 7?KEY_7:
 					i == 8?KEY_8:
 					KEY_9;
-				if ( KeyPress(key) ) {
+				if ( zKeyPressed(key) ) {
 					INP_CLR;
 					Choise( i );
 				}
@@ -222,60 +227,69 @@ namespace GOTHIC_ENGINE {
 			}
 		}
 
-		test = 0;
 		allTeleports.DeleteList();
 
 		CString str;
 		CString sFileName = GetPathSave( "FreeTeleports" );
-		test++;
 		if ( !FileExists( sFileName ) ) {
 			return;
 		}
 		str.ReadFromFile( sFileName );
-		test++;
 		if ( str.IsEmpty() ) {
 			return;
 		}
-		test++;
-		zCArray<zSTRING> arr = SplitStr( str.GetVector(), '|' );
-		for ( int i = 0; i < arr.GetNum(); i++ ) {
-			zSTRING slotStr = arr.GetSafe( i );
-			oTeleportSlot slot = GetSlotFromStr(slotStr);
+
+		Array<CStringA> splArr =  str.Split("|");
+		for ( uint i = 0; i < splArr.GetNum(); i++ ) {
+			zSTRING slotStr = GetString( splArr.GetSafe( i ) );
+			oTeleportSlot slot = GetSlotFromStr( slotStr );
 			if ( !slot.worldName.IsEmpty() ) {
 				allTeleports.Insert( slot );
 			}
+			
 		}
-		test++;
 		
+	}
+
+	zSTRING oTeleport::GetString( CStringA* elem ) {
+		if ( elem ) {
+			return ( *elem );
+		} 
+		return "";
 	}
 
 	oTeleportSlot oTeleport::GetSlotFromStr( zSTRING slotStr ) {
 		oTeleportSlot slot;
-		zCArray<zSTRING> arr = SplitStr( slotStr, '$' );
-		if ( arr.GetNum() > 0 ) {
-			slot.tpName = arr.GetSafe( 0 );
-			slot.worldName = arr.GetSafe( 1 );
-			slot.worldFilename = arr.GetSafe( 2 );
+		Array<CStringA> splArr = (A slotStr ).Split( "$" );
+		if ( splArr.GetNum() > 0 ) {
+			slot.tpName = GetString( splArr.GetSafe( 0 ) );
+			slot.worldName = GetString( splArr.GetSafe( 1 ) );
+			slot.worldFilename = GetString( splArr.GetSafe( 2 ) );
 
-			zCArray<zSTRING> vec01 = SplitStr( arr.GetSafe( 3 ), '#' );
-			if ( vec01.GetNum() > 0 ) {
-				float x = vec01.GetSafe( 0 ).ToReal64();
-				float y = vec01.GetSafe( 1 ).ToReal64();
-				float z = vec01.GetSafe( 2 ).ToReal64();
-				slot.pos = zVEC3(x, y, z);
+			if ( CStringA* elem = splArr.GetSafe( 3 ) ) {
+				Array<CStringA> vec = elem->Split( "#" );
+				if ( vec.GetNum() > 0 ) {
+					float x = GetString( vec.GetSafe( 0 ) ).ToReal64();
+					float y = GetString( vec.GetSafe( 1 ) ).ToReal64();
+					float z = GetString( vec.GetSafe( 2 ) ).ToReal64();
+					slot.pos = zVEC3( x, y, z );
+				}
 			}
 
-			zCArray<zSTRING> vec02 = SplitStr( arr.GetSafe( 4 ), '#' );
-			if ( vec02.GetNum() > 0 ) {
-				float x = vec02.GetSafe( 0 ).ToReal64();
-				float y = vec02.GetSafe( 1 ).ToReal64();
-				float z = vec02.GetSafe( 2 ).ToReal64();
-				slot.atPos = zVEC3( x, y, z );
+			if ( CStringA* elem = splArr.GetSafe( 4 ) ) {
+				Array<CStringA> vec = elem->Split( "#" );
+				if ( vec.GetNum() > 0 ) {
+					float x = GetString( vec.GetSafe( 0 ) ).ToReal64();
+					float y = GetString( vec.GetSafe( 1 ) ).ToReal64();
+					float z = GetString( vec.GetSafe( 2 ) ).ToReal64();
+					slot.atPos = zVEC3( x, y, z );
+				}
 			}
 
-			zSTRING strNum = arr.GetSafe( 5 );
+			zSTRING strNum = GetString( splArr.GetSafe( 5 ) );
 			slot.num = strNum.ToInt32();
 		}
+
 		return slot;
 	}
 

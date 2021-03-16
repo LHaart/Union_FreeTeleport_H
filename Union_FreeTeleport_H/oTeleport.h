@@ -33,7 +33,6 @@ namespace GOTHIC_ENGINE {
 		zSTRING teleportName;
 		zSTRING nextLocTo;
 		zSTRING menuName;
-		int test;
 
 		zSTRING sSaved;
 		zSTRING sTpName;
@@ -53,6 +52,7 @@ namespace GOTHIC_ENGINE {
 		zSTRING sTeleportTo;
 
 	public:
+		~oTeleport();
 		void Loop();
 		void Save();
 		void Load();
@@ -74,5 +74,6 @@ namespace GOTHIC_ENGINE {
 		zCArray<oTeleportSlot> GetNextLocationTo();
 		zSTRING GetWorldTpTo(int num);
 		void HandleEvent();
+		zSTRING GetString( CStringA* );
 	};
 }

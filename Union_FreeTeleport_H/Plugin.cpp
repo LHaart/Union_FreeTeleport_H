@@ -6,25 +6,29 @@ namespace GOTHIC_ENGINE {
   // TO DO
   // Your code ...
 
-	oTeleport telMan;
+	oTeleport* telMan;
 
 
   void Game_Entry() {
+	  telMan = new oTeleport();
   }
 
   void Game_Init() {
-	  telMan.Init();
+	  if ( telMan ) 
+		  telMan->Init();
   }
 
   void Game_Exit() {
   }
 
   void Game_Loop() {
-	  telMan.Loop();
+	  if ( telMan )
+		  telMan->Loop();
   }
 
   void Game_SaveBegin() {
-	  telMan.Save();
+	if ( telMan )
+		telMan->Save();
   }
 
   void Game_SaveEnd() {
@@ -34,7 +38,8 @@ namespace GOTHIC_ENGINE {
   }
 
   void LoadEnd() {
-	  telMan.Load();
+	if ( telMan )
+		telMan->Load();
   }
 
   void Game_LoadBegin_NewGame() {
@@ -54,7 +59,8 @@ namespace GOTHIC_ENGINE {
   }
 
   void Game_LoadBegin_ChangeLevel() {
-	telMan.Save();
+	if ( telMan )
+		telMan->Save();
     LoadBegin();
   }
 
