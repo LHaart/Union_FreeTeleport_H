@@ -10,6 +10,13 @@ namespace GOTHIC_ENGINE {
 	}
 
 	void oTeleport::Init() {
+		currentWorldName = "";
+		isActive = 0;
+		saveNum = 0;
+		teleportName = "";
+		nextLocTo = "";
+		menuName = "";
+
 		pView = zNEW(zCView)(0,0,F(70),F(50));
 		pView->SetPos( F(15), F(50));
 		pView->InsertBack( "dlg_conversation.tga" );
