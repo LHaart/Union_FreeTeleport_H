@@ -30,6 +30,7 @@ namespace GOTHIC_ENGINE {
 		int isActive;
 		int menuNum;
 		int saveNum;
+		int numOfTeleportSlots;
 		zSTRING teleportName;
 		zSTRING nextLocTo;
 		zSTRING menuName;

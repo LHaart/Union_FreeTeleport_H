@@ -86,6 +86,12 @@ namespace GOTHIC_ENGINE {
 		sExit = zoptions->ReadString( "FREETELEPORTS", "sExit", "Esc. Exit." );
 		sDefSlotName = zoptions->ReadString( "FREETELEPORTS", "sDefSlotName", "EmptySlot" );
 		sTeleportTo = zoptions->ReadString("FREETELEPORTS", "sTeleportTo", "Teleport to" );
+		numOfTeleportSlots = zoptions->ReadInt( "FREETELEPORTS", "numOfTeleportSlots", 3 );
+		if ( numOfTeleportSlots < 3 ) {
+			numOfTeleportSlots = 3;
+		} else if ( numOfTeleportSlots > 9 ) {
+			numOfTeleportSlots = 9;
+		} 
 
 		
 	}
@@ -255,7 +261,21 @@ namespace GOTHIC_ENGINE {
 			}
 			
 		}
-		
+
+		if ( splArr.GetNum() < numOfTeleportSlots ) {
+			for ( int i = splArr.GetNum(); i < numOfTeleportSlots; i++ ) {
+				oTeleportSlot slot;
+				if ( zCWorld* pWorld = player->GetHomeWorld() ) {
+					if ( oCWorld* oWorld = pWorld->CastTo<oCWorld>() ) {
+						slot.worldName = oWorld->worldName;
+						slot.worldFilename = oWorld->worldFilename;
+					}
+				}
+				slot.num = i + 1;
+				slot.tpName = "NewSlot " + zSTRING( slot.num );
+				allTeleports.Insert( slot );
+			}
+		}
 	}
 
 	zSTRING oTeleport::GetString( CStringA* elem ) {
@@ -404,7 +424,7 @@ namespace GOTHIC_ENGINE {
 		}
 		
 		if ( arr.GetNum() == 0 ) {
-			for ( int i = 0; i < 3; i++ ) {
+			for ( int i = 0; i < numOfTeleportSlots; i++ ) {
 				oTeleportSlot slot;
 				if ( zCWorld* pWorld = player->GetHomeWorld() ) {
 					if ( oCWorld* oWorld = pWorld->CastTo<oCWorld>() ) {
@@ -473,7 +493,7 @@ namespace GOTHIC_ENGINE {
 			Toggle();
 			TeleportToLoc(num);
 		} else if ( menuNum == SAVE ) {
-			if ( num > 3 ) {
+			if ( num > numOfTeleportSlots ) {
 				return;
 			}
 			saveNum = num;
@@ -503,7 +523,7 @@ namespace GOTHIC_ENGINE {
 	}
 
 	void oTeleport::TeleportTo( int num ) {
-		if ( num >= 1 && num <= 3 ) {
+		if ( num >= 1 && num <= numOfTeleportSlots ) {
 			oTeleportSlot& slot = GetCurrent( num );
 			
 			zVEC3 pos = slot.pos;
