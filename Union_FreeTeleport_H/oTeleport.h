@@ -16,7 +16,7 @@ namespace GOTHIC_ENGINE {
 
 	class oTeleport {
 	public:
-		CTimer timer;
+		Timer timer;
 		zSTRING currentWorldName;
 		zCArray<oTeleportSlot> allTeleports;
 		zCArray<oTeleportSlot> currentWorld;
@@ -26,6 +26,8 @@ namespace GOTHIC_ENGINE {
 
 		zCView* pView;
 		zCView* pViewName;
+
+		int currentPage;
 
 		int isActive;
 		int menuNum;

@@ -24,7 +24,7 @@ namespace GOTHIC_ENGINE {
 		pViewName->SetPos(8192 / 2 - F(15), F(25));
 		pViewName->InsertBack("dlg_conversation.tga");
 		menuNum = FALSE;
-
+		currentPage = 0;
 		// клавиши
 		allKeys.Insert( KEY_0 ); allCharacters.Insert( "0" );
 		allKeys.Insert( KEY_1 ); allCharacters.Insert( "1" );
@@ -89,8 +89,8 @@ namespace GOTHIC_ENGINE {
 		numOfTeleportSlots = zoptions->ReadInt( "FREETELEPORTS", "numOfTeleportSlots", 3 );
 		if ( numOfTeleportSlots < 3 ) {
 			numOfTeleportSlots = 3;
-		} else if ( numOfTeleportSlots > 9 ) {
-			numOfTeleportSlots = 9;
+		} else if ( numOfTeleportSlots > 50 ) {
+			numOfTeleportSlots = 50;
 		} 
 
 		
@@ -148,6 +148,28 @@ namespace GOTHIC_ENGINE {
 				}
 			}
 
+			if (menuNum == TELEPORT_TO)
+			{
+				zCArray<oTeleportSlot> arr = GetCurrent();
+
+				int size = arr.GetNumInList();
+
+				printWin(size);
+
+				if (zKeyPressed(KEY_D) && size > currentPage * 9)
+				{
+					currentPage += 1;
+				}
+
+
+				if (zKeyPressed(KEY_D) && currentPage > 0)
+				{
+					currentPage -= 1;
+				}
+
+				Draw();
+			}
+
 			if ( zKeyPressed( KEY_ESCAPE ) || zKeyPressed( KEY_BACKSPACE ) ) {
 				INP_CLR;
 				if ( menuNum == MAIN_MENU ) {
@@ -192,7 +214,7 @@ namespace GOTHIC_ENGINE {
 
 	void oTeleport::Loop() {
 
-		timer.Attach();
+		timer.ClearUnused();
 
 		HandleEvent();
 
@@ -351,7 +373,7 @@ namespace GOTHIC_ENGINE {
 
 			static int drawLine = 0;
 
-			if ( timer( 0, 500 ) ) {
+			if ( timer[0u].Await(500) ) {
 				drawLine = !drawLine;
 			}
 
@@ -386,9 +408,16 @@ namespace GOTHIC_ENGINE {
 			pViewName->ClrPrintwin();
 		} else if ( menuNum == TELEPORT_TO || menuNum == SAVE || menuNum == SAVE_NAME ) {
 			zCArray<oTeleportSlot> arr = GetCurrent();
-			for ( int i = 0; i < arr.GetNum(); i++ ) {
+			int startIndex = currentPage * 9;
+
+			for ( int i = startIndex; i < arr.GetNum(); i++ ) {
 				oTeleportSlot& slot = arr.GetSafe( i );
 				pView->Print( x, y + count++ * margin, A( i + 1 ) + ". " + A slot.tpName );
+
+				if (i == startIndex + 9)
+				{
+					break;
+				}
 			}
 		} else if ( menuNum == TELEPORT_NEXT_LOCATION_CHOISE_WORLD ) {
 			zCArray<zSTRING> arr = GetWorldNames();
