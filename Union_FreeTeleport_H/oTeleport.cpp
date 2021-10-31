@@ -155,7 +155,9 @@ namespace GOTHIC_ENGINE {
 
 				int size = arr.GetNumInList();
 
-				if ((zKeyPressed(KEY_D) || zKeyPressed(KEY_RIGHTARROW)) && size > currentPage * STRINGS_PER_PAGE)
+				//printWin(size);
+
+				if ((zKeyPressed(KEY_D) || zKeyPressed(KEY_RIGHTARROW)) && size > currentPage * STRINGS_PER_PAGE + 1)
 				{
 					zinput->ClearKeyBuffer();
 					currentPage += 1;
@@ -350,10 +352,12 @@ namespace GOTHIC_ENGINE {
 			screen->InsertItem( pView );
 			Draw();
 			player->movlock = TRUE;
+			zCCSCamera::playing = true;
 		} else {
 			screen->RemoveItem( pView );
 			screen->RemoveItem( pViewName );
 			player->movlock = FALSE;
+			zCCSCamera::playing = false;
 			currentPage = 0;
 		}
 	}
