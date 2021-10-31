@@ -24,6 +24,8 @@ namespace GOTHIC_ENGINE {
 		zCArray<int> allKeys;					// список всех кнопок
 		zCArray<zSTRING> allCharacters;			// список всех букв
 
+		static const int STRINGS_PER_PAGE = 9;
+
 		zCView* pView;
 		zCView* pViewName;
 
@@ -53,6 +55,7 @@ namespace GOTHIC_ENGINE {
 		zSTRING sExit;
 		zSTRING sDefSlotName;
 		zSTRING sTeleportTo;
+		zSTRING sPage;
 
 	public:
 		~oTeleport();

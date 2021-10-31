@@ -86,6 +86,7 @@ namespace GOTHIC_ENGINE {
 		sExit = zoptions->ReadString( "FREETELEPORTS", "sExit", "Esc. Exit." );
 		sDefSlotName = zoptions->ReadString( "FREETELEPORTS", "sDefSlotName", "EmptySlot" );
 		sTeleportTo = zoptions->ReadString("FREETELEPORTS", "sTeleportTo", "Teleport to" );
+		sPage = zoptions->ReadString("FREETELEPORTS", "sPage", "Page #");
 		numOfTeleportSlots = zoptions->ReadInt( "FREETELEPORTS", "numOfTeleportSlots", 3 );
 		if ( numOfTeleportSlots < 3 ) {
 			numOfTeleportSlots = 3;
@@ -148,42 +149,20 @@ namespace GOTHIC_ENGINE {
 				}
 			}
 
-			if (menuNum == TELEPORT_TO)
+			if (menuNum == TELEPORT_TO || menuNum == SAVE || menuNum == TELEPORT_NEXT_LOCATION_TO)
 			{
 				zCArray<oTeleportSlot> arr = GetCurrent();
 
 				int size = arr.GetNumInList();
 
-				if (zKeyPressed(KEY_D) && size > currentPage * 9)
+				if ((zKeyPressed(KEY_D) || zKeyPressed(KEY_RIGHTARROW)) && size > currentPage * STRINGS_PER_PAGE)
 				{
 					zinput->ClearKeyBuffer();
 					currentPage += 1;
 				}
 
 
-				if (zKeyPressed(KEY_A) && currentPage > 0)
-				{
-					zinput->ClearKeyBuffer();
-					currentPage -= 1;
-				}
-
-				Draw();
-			}
-
-			if (menuNum == SAVE)
-			{
-				zCArray<oTeleportSlot> arr = GetCurrent();
-
-				int size = arr.GetNumInList();
-
-				if (zKeyPressed(KEY_D) && size > currentPage * 9)
-				{
-					zinput->ClearKeyBuffer();
-					currentPage += 1;
-				}
-
-
-				if (zKeyPressed(KEY_A) && currentPage > 0)
+				if ((zKeyPressed(KEY_A) || zKeyPressed(KEY_LEFTARROW)) && currentPage > 0)
 				{
 					zinput->ClearKeyBuffer();
 					currentPage -= 1;
@@ -433,16 +412,24 @@ namespace GOTHIC_ENGINE {
 			screen->RemoveItem( pViewName );
 			pViewName->ClrPrintwin();
 		} else if ( menuNum == TELEPORT_TO || menuNum == SAVE || menuNum == SAVE_NAME ) {
-			pView->Print(0, 0, "Страница #" + Z (currentPage + 1));
+
+
+			int xPage = 8192 / 2 - pView->FontSize(sPage) / 2;
+			int yPage = F(10);
+			pView->SetFontColor(zCOLOR(0, 255, 0));
+
+			pView->Print(xPage, yPage, sPage + Z (currentPage + 1));
+			pView->SetFontColor(zCOLOR(255, 255, 255));
+
 			zCArray<oTeleportSlot> arr = GetCurrent();
-			int startIndex = currentPage * 9;
+			int startIndex = currentPage * STRINGS_PER_PAGE;
 			int countString = 1;
 			for ( int i = startIndex; i < arr.GetNum(); i++ ) {
 				oTeleportSlot& slot = arr.GetSafe( i );
 
 				pView->Print( x, y + count++ * margin, A( countString++ ) + ". " + A slot.tpName );
 
-				if (i == startIndex + 8)
+				if (i == startIndex + STRINGS_PER_PAGE - 1)
 				{
 					break;
 				}
@@ -532,7 +519,7 @@ namespace GOTHIC_ENGINE {
 		} else if ( menuNum == TELEPORT_TO ) {
 			menuNum = MAIN_MENU;
 			menuName = sMenu01;
-			TeleportTo(num + currentPage * 9);
+			TeleportTo(num + currentPage * STRINGS_PER_PAGE);
 			Toggle();
 		} else if ( menuNum == TELEPORT_NEXT_LOCATION_CHOISE_WORLD ) {
 			nextLocTo = GetWorldTpTo( num );
@@ -553,9 +540,9 @@ namespace GOTHIC_ENGINE {
 			if ( num > numOfTeleportSlots ) {
 				return;
 			}
-			printWin( "currentPage " + Z currentPage );
-			saveNum = num + currentPage * 9;
-			printWin( "saveNum " + Z saveNum );
+			//printWin( "currentPage " + Z currentPage );
+			saveNum = num + currentPage * STRINGS_PER_PAGE;
+			//printWin( "saveNum " + Z saveNum );
 			menuNum = SAVE_NAME;
 			menuName = sMenu05;
 			Draw();
