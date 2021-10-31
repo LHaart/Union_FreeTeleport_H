@@ -154,21 +154,45 @@ namespace GOTHIC_ENGINE {
 
 				int size = arr.GetNumInList();
 
-				printWin(size);
-
 				if (zKeyPressed(KEY_D) && size > currentPage * 9)
 				{
+					zinput->ClearKeyBuffer();
 					currentPage += 1;
 				}
 
 
-				if (zKeyPressed(KEY_D) && currentPage > 0)
+				if (zKeyPressed(KEY_A) && currentPage > 0)
 				{
+					zinput->ClearKeyBuffer();
 					currentPage -= 1;
 				}
 
 				Draw();
 			}
+
+			if (menuNum == SAVE)
+			{
+				zCArray<oTeleportSlot> arr = GetCurrent();
+
+				int size = arr.GetNumInList();
+
+				if (zKeyPressed(KEY_D) && size > currentPage * 9)
+				{
+					zinput->ClearKeyBuffer();
+					currentPage += 1;
+				}
+
+
+				if (zKeyPressed(KEY_A) && currentPage > 0)
+				{
+					zinput->ClearKeyBuffer();
+					currentPage -= 1;
+				}
+
+				Draw();
+			}
+
+
 
 			if ( zKeyPressed( KEY_ESCAPE ) || zKeyPressed( KEY_BACKSPACE ) ) {
 				INP_CLR;
@@ -351,6 +375,7 @@ namespace GOTHIC_ENGINE {
 			screen->RemoveItem( pView );
 			screen->RemoveItem( pViewName );
 			player->movlock = FALSE;
+			currentPage = 0;
 		}
 	}
 
@@ -398,6 +423,7 @@ namespace GOTHIC_ENGINE {
 		int margin = F( 8 );
 		int count = 0;
 		if ( menuNum == MAIN_MENU ) {
+			currentPage = 0;
 			menuName = sMenu01;
 			pView->Print( x, y + count++ * margin, sMenu01_01 ); //1. Teleport to: 5 mana
 			pView->Print( x, y + count++ * margin, sMenu01_02 ); //2. Teleport to another location: 10 mana
@@ -407,14 +433,16 @@ namespace GOTHIC_ENGINE {
 			screen->RemoveItem( pViewName );
 			pViewName->ClrPrintwin();
 		} else if ( menuNum == TELEPORT_TO || menuNum == SAVE || menuNum == SAVE_NAME ) {
+			pView->Print(0, 0, "Страница #" + Z (currentPage + 1));
 			zCArray<oTeleportSlot> arr = GetCurrent();
 			int startIndex = currentPage * 9;
-
+			int countString = 1;
 			for ( int i = startIndex; i < arr.GetNum(); i++ ) {
 				oTeleportSlot& slot = arr.GetSafe( i );
-				pView->Print( x, y + count++ * margin, A( i + 1 ) + ". " + A slot.tpName );
 
-				if (i == startIndex + 9)
+				pView->Print( x, y + count++ * margin, A( countString++ ) + ". " + A slot.tpName );
+
+				if (i == startIndex + 8)
 				{
 					break;
 				}
@@ -504,8 +532,8 @@ namespace GOTHIC_ENGINE {
 		} else if ( menuNum == TELEPORT_TO ) {
 			menuNum = MAIN_MENU;
 			menuName = sMenu01;
+			TeleportTo(num + currentPage * 9);
 			Toggle();
-			TeleportTo(num);
 		} else if ( menuNum == TELEPORT_NEXT_LOCATION_CHOISE_WORLD ) {
 			nextLocTo = GetWorldTpTo( num );
 			if ( !nextLocTo.IsEmpty() ) {
@@ -525,7 +553,9 @@ namespace GOTHIC_ENGINE {
 			if ( num > numOfTeleportSlots ) {
 				return;
 			}
-			saveNum = num;
+			printWin( "currentPage " + Z currentPage );
+			saveNum = num + currentPage * 9;
+			printWin( "saveNum " + Z saveNum );
 			menuNum = SAVE_NAME;
 			menuName = sMenu05;
 			Draw();
