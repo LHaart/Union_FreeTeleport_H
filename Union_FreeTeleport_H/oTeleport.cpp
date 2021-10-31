@@ -547,8 +547,8 @@ namespace GOTHIC_ENGINE {
 		} else if ( menuNum == TELEPORT_NEXT_LOCATION_TO ) {
 			menuNum = MAIN_MENU;
 			menuName = sMenu01;
+			TeleportToLoc(num + currentPage * 9);
 			Toggle();
-			TeleportToLoc(num);
 		} else if ( menuNum == SAVE ) {
 			if ( num > numOfTeleportSlots ) {
 				return;
